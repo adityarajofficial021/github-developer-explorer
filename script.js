@@ -16,3 +16,15 @@ themeToggle.addEventListener("click", () => {
         themeToggle.textContent = "🌙 Dark Mode";
     }
 });
+
+const profileDiv = document.getElementById("profile");
+const reposDiv = document.getElementById("repos");
+const usernameInput = document.getElementById("username");
+const rateLimitInfo = document.getElementById("rate-limit-info"); // NEW: Grab the rate limit element
+
+usernameInput.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); 
+        getUser();
+    }
+});
