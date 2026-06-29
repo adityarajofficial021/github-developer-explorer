@@ -106,3 +106,30 @@ async function getUser() {
         profileDiv.innerHTML = "<h2>Something Went Wrong</h2>";
     }
 }
+
+function renderRepos() {
+    let data = [...repos];
+    const sort = document.getElementById("sort").value;
+
+    if(sort === "stars") {
+        data.sort((a,b) => b.stargazers_count - a.stargazers_count);
+    }
+    if(sort === "forks") {
+        data.sort((a,b) => b.forks_count - a.forks_count);
+    }
+    if(sort === "updated") {
+        data.sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+    }
+
+    reposDiv.innerHTML = data.map(repo => `
+        <div class="repo">
+            <h3>${repo.name}</h3>
+            <p>${repo.description || "No Description"}</p>
+            <br>
+            <p>⭐ ${repo.stargazers_count} | 🍴 ${repo.forks_count}</p>
+            <p>Language: ${repo.language || "N/A"}</p>
+            <br>
+            <a href="${repo.html_url}" target="_blank">Open Repository</a>
+        </div>
+    `).join("");
+}
