@@ -28,3 +28,81 @@ usernameInput.addEventListener("keydown", function(event) {
         getUser();
     }
 });
+
+let repos = [];
+
+async function getUser() {
+    const username = usernameInput.value.trim(); 
+
+    if(!username) {
+        alert("Enter Username");
+        return;
+    }
+
+    profileDiv.innerHTML = "<h3>Loading...</h3>";
+    reposDiv.innerHTML = "";
+
+    try {
+        const userRes = await fetch(`https://api.github.com/users/${username}`);
+        
+        // --- NEW: Rate Limit Handling ---
+        const remaining = userRes.headers.get('x-ratelimit-remaining');
+        const limit = userRes.headers.get('x-ratelimit-limit');
+        const resetTime = userRes.headers.get('x-ratelimit-reset');
+
+        if (remaining && limit) {
+            rateLimitInfo.textContent = `API Requests Remaining: ${remaining} / ${limit}`;
+        }
+
+        if(userRes.status === 404) {
+            profileDiv.innerHTML = "<h2>User Not Found</h2>";
+            return;
+        }
+
+        // Catch 403 (Rate Limit Exceeded)
+        if(userRes.status === 403 || userRes.status === 429) {
+            let resetMessage = "";
+            if (resetTime) {
+                // Convert UNIX timestamp to readable local time
+                const resetDate = new Date(resetTime * 1000);
+                resetMessage = `<p>Limit resets at: <strong>${resetDate.toLocaleTimeString()}</strong></p>`;
+            }
+            
+            profileDiv.innerHTML = `
+                <div class="card" style="text-align: center; border-color: #ef4444;">
+                    <h2 style="color: #ef4444;">API Limit Exceeded</h2>
+                    <p>You have hit the GitHub API's 60 requests/hour limit for unauthenticated users.</p>
+                    ${resetMessage}
+                </div>
+            `;
+            return;
+        }
+        // --------------------------------
+
+        const user = await userRes.json();
+        const repoRes = await fetch(`https://api.github.com/users/${username}/repos`);
+        
+        repos = await repoRes.json();
+
+        profileDiv.innerHTML = `
+        <div class="card profile">
+            <img src="${user.avatar_url}">
+            <div>
+                <h2>${user.name || user.login}</h2>
+                <p>${user.bio || "No Bio Available"}</p>
+                <p>Followers: ${user.followers}</p>
+                <p>Following: ${user.following}</p>
+                <p>Public Repos: ${user.public_repos}</p>
+                <br>
+                <a href="${user.html_url}" target="_blank">View Profile</a>
+            </div>
+        </div>
+        `;
+
+        renderRepos();
+
+    } catch (error) {
+        console.error(error);
+        profileDiv.innerHTML = "<h2>Something Went Wrong</h2>";
+    }
+}
