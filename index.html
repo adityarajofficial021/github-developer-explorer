@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Developer Explorer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="header-container">
+        <h1>GitHub Developer Explorer</h1>
+        <button id="theme-toggle">🌙 Dark Mode</button>
+    </div>
+
+    <div class="search">
+        <input type="text" id="username" placeholder="Enter GitHub Username">
+        <button onclick="getUser()">Search</button>
+    </div>
+    
+    <p id="rate-limit-info" style="text-align: right; margin-top: -20px; margin-bottom: 20px; font-size: 0.85rem; color: var(--text-secondary);"></p>
+
+    <div id="profile"></div>
+
+    <select id="sort" onchange="renderRepos()">
+        <option value="updated">Latest Updated</option>
+        <option value="stars">Most Stars</option>
+        <option value="forks">Most Forks</option>
+    </select>
+
+    <div id="repos"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
